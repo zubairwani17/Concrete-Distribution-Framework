@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<!-- GENERATED FILE — do not edit directly. Edit src/ and run: python build.py -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Concrete Distribution Selection Framework</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg1:#fff;--bg2:#f6f6f2;--bg3:#eeeee8;
+  --t1:#1a1a1a;--t2:#67675f;--t3:#9a9a92;
+  --bd:#e4e4dc;--bd2:#cfcfc6;
+  --ok-bg:#E1F5EE;--ok-c:#085041;
+  --info-bg:#E6F1FB;--info-c:#0C447C;
+  --warn-bg:#FAEEDA;--warn-c:#633806;
+  --err-bg:#FCEAE7;--err-c:#8C2213;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SF Mono","Fira Code","Roboto Mono",ui-monospace,monospace;
+  --r:10px;--rs:6px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg1:#1b1b19;--bg2:#232320;--bg3:#2c2c28;
+  --t1:#eaeae2;--t2:#a2a29a;--t3:#75756d;
+  --bd:#37372f;--bd2:#4e4e46;
+  --ok-bg:#0a453a;--ok-c:#9FE1CB;
+  --info-bg:#0f3c69;--info-c:#B5D4F4;
+  --warn-bg:#3c2204;--warn-c:#FAC775;
+  --err-bg:#4a1a12;--err-c:#F5B5A8;
+}}
+body{font-family:var(--font);color:var(--t1);background:var(--bg2);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:610px;margin:0 auto;padding:22px 14px 70px}
+h1{font-size:18px;font-weight:600;line-height:1.3;margin-bottom:4px}
+.sub{font-size:12px;color:var(--t2)}
+.hdr{text-align:center;margin-bottom:22px}
+.prog{display:flex;gap:3px;margin-bottom:20px}
+.pseg{flex:1;height:3px;border-radius:2px;background:var(--bd);transition:background .3s}
+.phase{margin-bottom:18px}
+.plab{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pnum{width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.ptitle{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px}
+.card{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:14px 15px;margin-bottom:8px;transition:box-shadow .2s,border-color .2s}
+.q{font-size:13px;font-weight:500;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{padding:6px 13px;font-size:12px;border-radius:var(--rs);border:1px solid var(--bd2);background:transparent;color:var(--t1);cursor:pointer;font-family:var(--font);transition:all .15s;-webkit-tap-highlight-color:transparent}
+.opt:hover{background:var(--bg2)}
+.opt:disabled{opacity:.45;cursor:not-allowed}
+.tabs{display:flex;background:var(--bg2);border-radius:var(--rs);padding:3px;margin-bottom:11px}
+.tab{flex:1;padding:6px 8px;font-size:11.5px;border:none;background:transparent;color:var(--t2);border-radius:4px;cursor:pointer;font-family:var(--font);font-weight:500;transition:all .15s}
+.tab.on{background:var(--bg1);color:var(--t1);box-shadow:0 1px 2px rgba(0,0,0,.07)}
+.drop{border:1.5px dashed var(--bd2);border-radius:var(--rs);padding:20px 14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg2)}
+.drop:hover,.drop.over{border-color:#0F6E56;background:var(--ok-bg)}
+.drop-t{font-size:12.5px;font-weight:500;margin-bottom:3px}
+.drop-s{font-size:11px;color:var(--t3)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:1px;background:var(--bd);border-radius:var(--rs);overflow:hidden;margin-bottom:10px}
+.stat{background:var(--bg1);padding:8px 6px;text-align:center}
+.stat-v{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+.sel-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sel-row label{font-size:10.5px;color:var(--t3);display:block;margin-bottom:3px}
+select{padding:5px 8px;font-size:11.5px;border:1px solid var(--bd2);border-radius:4px;background:var(--bg1);color:var(--t1);font-family:var(--font);max-width:150px}
+.badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--ok-bg);color:var(--ok-c);white-space:nowrap}
+.res{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:17px 15px}
+.res-ph{background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:38px 16px;text-align:center;color:var(--t3);font-size:12px}
+.rlab{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.rdist{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:6px}
+.rreason{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:11px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+.tag{padding:3px 9px;border-radius:4px;font-size:10px;font-weight:600}
+.sec{background:var(--bg2);border-radius:var(--rs);padding:11px 13px;margin-bottom:9px}
+.sec-l{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec-b{font-size:12px;color:var(--t2);line-height:1.6}
+.mono{font-family:var(--mono);font-size:10.5px;white-space:pre-wrap;color:var(--t1);line-height:1.65;overflow-x:auto}
+.alt{font-size:12px;margin-bottom:4px;line-height:1.5}
+.alt b{font-weight:600;color:var(--t1)}
+.vs{font-size:12px;display:flex;gap:7px;margin-bottom:3px;line-height:1.5}
+.vn{color:var(--t3);flex-shrink:0;width:15px;text-align:right}
+.note{font-size:11px;color:var(--t3);font-style:italic;margin-bottom:4px;line-height:1.5}
+table{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
+th{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.2px;font-weight:600;text-align:right;padding:0 0 5px 5px;border-bottom:1px solid var(--bd);white-space:nowrap}
+th:first-child{text-align:left;padding-left:0}
+td{padding:5px 0 5px 5px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
+td:first-child{text-align:left;padding-left:0;font-weight:500}
+tr:last-child td{border-bottom:none}
+tr.rej td{color:var(--t3)}
+tr.recd td:first-child{font-weight:700}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.chart{background:var(--bg2);border-radius:var(--rs);padding:10px 6px 4px;margin-bottom:9px}
+.chdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;padding:0 6px;flex-wrap:wrap;gap:5px}
+.ctitle{font-size:9.5px;color:var(--t3)}
+.leg{display:flex;gap:10px;flex-wrap:wrap}
+.li{font-size:9.5px;font-weight:600;display:flex;align-items:center;gap:4px}
+.ll{width:11px;height:2px;border-radius:1px}
+.btn{padding:7px 17px;border:1px solid var(--bd2);border-radius:var(--rs);font-size:11.5px;cursor:pointer;background:transparent;color:var(--t1);font-family:var(--font)}
+.btn:hover{background:var(--bg2)}
+.lnk{font-size:11px;color:var(--info-c);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:var(--font);padding:0}
+.err{background:var(--err-bg);color:var(--err-c);padding:8px 11px;border-radius:var(--rs);font-size:11.5px;margin-bottom:9px}
+svg text{font-family:var(--font)}
+.verdict{border-radius:var(--rs);padding:11px 13px;font-size:11.5px;line-height:1.6;margin-bottom:11px}
+.v-ok{background:var(--ok-bg);color:var(--ok-c)}
+.v-warn{background:var(--warn-bg);color:var(--warn-c)}
+.v-info{background:var(--info-bg);color:var(--info-c)}
+.verdict b{font-weight:700}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bd);border-radius:var(--rs);overflow:hidden;margin-bottom:11px}
+.sp{background:var(--bg2);padding:10px 11px}
+.sp-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:3px}
+.sp-v{font-size:13px;font-weight:600;line-height:1.3}
+.sp-s{font-size:10px;color:var(--t3);margin-top:2px}
+.spin{display:inline-block;width:9px;height:9px;border:1.5px solid var(--bd2);border-top-color:var(--t2);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.5/babel.min.js"></script>
+<script type="text/babel">
+/* Statistical engine — MLE fitters, goodness-of-fit, bootstrap calibration.
+   Plain JavaScript, no JSX. Verified against scipy.stats to 4 decimals. */
+
+/* ══════════ MATH ══════════ */
+function erf(z){
+  const t=1/(1+0.5*Math.abs(z));
+  const y=1-t*Math.exp(-z*z-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+
+    t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+t*(-0.82215223+t*0.17087277)))))))));
+  return z>=0?y:-y;
+}
+const nCdf=(x,mu,s)=>0.5*(1+erf((x-mu)/(s*Math.SQRT2)));
+function qnorm(p){
+  const a=[-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.38357751867269e2,-3.066479806614716e1,2.506628277459239],
+        b=[-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1],
+        c=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],
+        d=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996,3.754408661907416],pl=.02425;
+  let q,r;
+  if(p<pl){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}
+  if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}
+  q=p-.5;r=q*q;
+  return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+const S=a=>a.reduce((p,c)=>p+c,0);
+const f4=v=>v.toFixed(4);
+
+/* ── Fitters (ASCII param keys; display labels separate) ── */
+function fitNormal(x){
+  const n=x.length,mu=S(x)/n,sig=Math.sqrt(S(x.map(v=>(v-mu)**2))/n);
+  const ll=S(x.map(v=>-Math.log(sig*Math.sqrt(2*Math.PI))-.5*((v-mu)/sig)**2));
+  return{name:"Normal",key:"normal",color:"#185FA5",p:{mu:mu,sig:sig},lab:{mu:"μ",sig:"σ"},np:2,ll,
+    cdf:t=>nCdf(t,mu,sig),pdf:t=>(1/(sig*Math.sqrt(2*Math.PI)))*Math.exp(-.5*((t-mu)/sig)**2),
+    q:u=>mu+sig*qnorm(u),
+    eq:`f(x) = 1/(${f4(sig)}*sqrt(2*pi))*exp(-((x-${f4(mu)})^2)/(2*${f4(sig)}^2))`};
+}
+function fitLognormal(x){
+  const n=x.length,L=x.map(Math.log),muY=S(L)/n,sigY=Math.sqrt(S(L.map(v=>(v-muY)**2))/n);
+  const ll=S(x.map((v,i)=>-Math.log(v*sigY*Math.sqrt(2*Math.PI))-.5*((L[i]-muY)/sigY)**2));
+  return{name:"Lognormal",key:"lognormal",color:"#0F6E56",p:{muY:muY,sigY:sigY},lab:{muY:"μ_Y",sigY:"σ_Y"},np:2,ll,
+    cdf:t=>t<=0?0:nCdf(Math.log(t),muY,sigY),
+    pdf:t=>t<=0?0:(1/(t*sigY*Math.sqrt(2*Math.PI)))*Math.exp(-.5*((Math.log(t)-muY)/sigY)**2),
+    q:u=>Math.exp(muY+sigY*qnorm(u)),
+    eq:`f(x) = 1/(x*${f4(sigY)}*sqrt(2*pi))*exp(-((ln(x)-${f4(muY)})^2)/(2*${f4(sigY)}^2))`};
+}
+function fitWeibull(x){
+  const n=x.length,L=x.map(Math.log),mL=S(L)/n;
+  const g=m=>{const w=x.map(v=>Math.pow(v,m));return S(w.map((v,i)=>v*L[i]))/S(w)-1/m-mL};
+  let lo=.05,hi=80;
+  for(let i=0;i<300;i++){const mid=(lo+hi)/2;if(g(lo)*g(mid)<=0)hi=mid;else lo=mid}
+  const m=(lo+hi)/2,lam=Math.pow(S(x.map(v=>Math.pow(v,m)))/n,1/m);
+  const ll=S(x.map(v=>Math.log(m/lam)+(m-1)*Math.log(v/lam)-Math.pow(v/lam,m)));
+  return{name:"Weibull (2P)",key:"weibull",color:"#534AB7",p:{m:m,lam:lam},lab:{m:"m",lam:"λ"},np:2,ll,
+    cdf:t=>t<=0?0:1-Math.exp(-Math.pow(t/lam,m)),
+    pdf:t=>t<=0?0:(m/lam)*Math.pow(t/lam,m-1)*Math.exp(-Math.pow(t/lam,m)),
+    q:u=>lam*Math.pow(-Math.log(1-u),1/m),
+    eq:`f(x) = (${f4(m)}/${f4(lam)})*(x/${f4(lam)})^${f4(m-1)}*exp(-(x/${f4(lam)})^${f4(m)})`};
+}
+function fitGumbel(x){
+  const n=x.length,mean=S(x)/n,sd=Math.sqrt(S(x.map(v=>(v-mean)**2))/(n-1));
+  let s=sd*Math.sqrt(6)/Math.PI;
+  for(let i=0;i<800;i++){
+    const w=x.map(v=>Math.exp(-v/s)),sw=S(w);
+    const sn=mean-S(x.map((v,j)=>v*w[j]))/sw;
+    if(!isFinite(sn)||sn<=0)break;
+    if(Math.abs(sn-s)<1e-11){s=sn;break}
+    s=.5*s+.5*sn;
+  }
+  const m=-s*Math.log(S(x.map(v=>Math.exp(-v/s)))/n);
+  const ll=S(x.map(v=>{const z=(v-m)/s;return-Math.log(s)-z-Math.exp(-z)}));
+  return{name:"Gumbel",key:"gumbel",color:"#D85A30",p:{m:m,s:s},lab:{m:"m",s:"s"},np:2,ll,
+    cdf:t=>Math.exp(-Math.exp(-(t-m)/s)),
+    pdf:t=>{const z=(t-m)/s;return(1/s)*Math.exp(-z-Math.exp(-z))},
+    q:u=>m-s*Math.log(-Math.log(u)),
+    eq:`f(x) = (1/${f4(s)})*exp(-((x-${f4(m)})/${f4(s)})-exp(-((x-${f4(m)})/${f4(s)})))`};
+}
+function fitBurr(x){
+  const n=x.length;
+  const neg=v=>{
+    const a=Math.exp(v[0]),c=Math.exp(v[1]);
+    if(!isFinite(a)||!isFinite(c)||a<=0||c<=0)return 1e12;
+    let Sv=0,sl=0;
+    for(const t of x){const z=Math.pow(t/c,a);if(!isFinite(z))return 1e12;Sv+=Math.log1p(z);sl+=Math.log(t/c)}
+    if(!(Sv>0)||!isFinite(Sv))return 1e12;
+    const k=n/Sv,ll=n*Math.log(a)+n*Math.log(k)-n*Math.log(c)+(a-1)*sl-(k+1)*Sv;
+    return isFinite(ll)?-ll:1e12;
+  };
+  const srt=[...x].sort((p,q)=>p-q),med=srt[Math.floor(n/2)];
+  let sx=[[Math.log(4),Math.log(med)],[Math.log(4)+.5,Math.log(med)],[Math.log(4),Math.log(med)+.3]];
+  let f=sx.map(neg);
+  for(let it=0;it<2200;it++){
+    const idx=[0,1,2].sort((p,q)=>f[p]-f[q]);
+    sx=idx.map(i=>sx[i]);f=idx.map(i=>f[i]);
+    if(Math.abs(f[2]-f[0])<1e-10)break;
+    const cen=[(sx[0][0]+sx[1][0])/2,(sx[0][1]+sx[1][1])/2];
+    const rf=[2*cen[0]-sx[2][0],2*cen[1]-sx[2][1]],fr=neg(rf);
+    if(fr<f[0]){
+      const ex=[3*cen[0]-2*sx[2][0],3*cen[1]-2*sx[2][1]],fe=neg(ex);
+      if(fe<fr){sx[2]=ex;f[2]=fe}else{sx[2]=rf;f[2]=fr}
+    }else if(fr<f[1]){sx[2]=rf;f[2]=fr}
+    else{
+      const co=[cen[0]+.5*(sx[2][0]-cen[0]),cen[1]+.5*(sx[2][1]-cen[1])],fc=neg(co);
+      if(fc<f[2]){sx[2]=co;f[2]=fc}
+      else{
+        sx[1]=[sx[0][0]+.5*(sx[1][0]-sx[0][0]),sx[0][1]+.5*(sx[1][1]-sx[0][1])];
+        sx[2]=[sx[0][0]+.5*(sx[2][0]-sx[0][0]),sx[0][1]+.5*(sx[2][1]-sx[0][1])];
+        f[1]=neg(sx[1]);f[2]=neg(sx[2]);
+      }
+    }
+  }
+  const best=sx[f.indexOf(Math.min(...f))],a=Math.exp(best[0]),c=Math.exp(best[1]);
+  const Sv=S(x.map(t=>Math.log1p(Math.pow(t/c,a)))),k=n/Sv,ll=-Math.min(...f);
+  return{name:"Burr XII",key:"burr",color:"#B0407A",p:{a:a,k:k,c:c},lab:{a:"a",k:"k",c:"c"},np:3,ll,
+    cdf:t=>t<=0?0:1-Math.pow(1+Math.pow(t/c,a),-k),
+    pdf:t=>t<=0?0:(a*k/c)*Math.pow(t/c,a-1)*Math.pow(1+Math.pow(t/c,a),-(k+1)),
+    q:u=>c*Math.pow(Math.pow(1-u,-1/k)-1,1/a),
+    eq:`f(x) = (${f4(a)}*${f4(k)}/${f4(c)})*(x/${f4(c)})^${f4(a-1)}*(1+(x/${f4(c)})^${f4(a)})^${f4(-(k+1))}`};
+}
+const FITTERS={normal:fitNormal,lognormal:fitLognormal,weibull:fitWeibull,gumbel:fitGumbel,burr:fitBurr};
+
+function gof(x,fit){
+  const xs=[...x].sort((a,b)=>a-b),n=xs.length;
+  const F=xs.map(v=>Math.min(1-1e-12,Math.max(1e-12,fit.cdf(v))));
+  let D=0,A=0;
+  for(let i=0;i<n;i++){
+    D=Math.max(D,(i+1)/n-F[i],F[i]-i/n);
+    A+=(2*(i+1)-1)*(Math.log(F[i])+Math.log(1-F[n-1-i]));
+  }
+  return{ks:D,ad:-n-A/n,aic:2*fit.np-2*fit.ll,bic:fit.np*Math.log(n)-2*fit.ll};
+}
+function bootstrapP(x,key,obsAD,obsKS,B){
+  const n=x.length,base=FITTERS[key](x);
+  let geAD=0,geKS=0,ok=0;
+  for(let b=0;b<B;b++){
+    const s=new Array(n);
+    let bad=false;
+    for(let i=0;i<n;i++){
+      const v=base.q(Math.random()*.999998+1e-6);
+      if(!isFinite(v)||v<=0){bad=true;break}
+      s[i]=v;
+    }
+    if(bad)continue;
+    try{
+      const f=FITTERS[key](s),g=gof(s,f);
+      if(!isFinite(g.ad))continue;
+      ok++;if(g.ad>=obsAD)geAD++;if(g.ks>=obsKS)geKS++;
+    }catch(e){}
+  }
+  return ok<30?{pAD:null,pKS:null}:{pAD:(geAD+1)/(ok+1),pKS:(geKS+1)/(ok+1)};
+}
+function describe(v){
+  const n=v.length,mean=S(v)/n,sd=Math.sqrt(S(v.map(t=>(t-mean)**2))/(n-1));
+  const srt=[...v].sort((a,b)=>a-b);
+  const skew=n>2?(n/((n-1)*(n-2)))*S(v.map(t=>((t-mean)/sd)**3)):0;
+  return{n,mean,sd,cov:sd/mean*100,min:srt[0],max:srt[n-1],skew,
+    emp5:srt[Math.max(0,Math.round(.05*(n-1)))]};
+}
+const covBucket=c=>c<10?"low":c<20?"mod":c<=35?"high":"vhigh";
+const nBucket=n=>n<50?"small":n<=200?"med":"large";
+const covLabel=b=>({low:"< 10%",mod:"10–20%",high:"20–35%",vhigh:"> 35%"})[b];
+const nLabel=b=>({small:"< 50",med:"50–200",large:"> 200"})[b];
+
+
+
+
+/* Decision framework — question definitions, recommendation engine,
+   illustrative reference curves. Plain JavaScript, no JSX. */
+
+/* ══════════ QUESTIONS ══════════ */
+const QS=[
+  {id:"src",ph:0,q:"Where does your strength data originate?",
+    opts:[{v:"lab",l:"Laboratory specimens"},{v:"field",l:"Field-cast / site-cured"},{v:"core",l:"In-situ cores / NDT"},{v:"mixed",l:"Mixed / multi-source"}]},
+  {id:"mat",ph:0,q:"What type of concrete are you modelling?",
+    opts:[{v:"normal",l:"Normal-strength"},{v:"high",l:"High-strength / UHPC"},{v:"recycled",l:"Recycled aggregate"},{v:"alt",l:"Alternative"}]},
+  {id:"cov",ph:1,q:"Coefficient of variation",special:1,
+    opts:[{v:"low",l:"< 10%"},{v:"mod",l:"10 – 20%"},{v:"high",l:"20 – 35%"},{v:"vhigh",l:"> 35%"}]},
+  {id:"n",ph:1,q:"How many specimens in your dataset?",
+    opts:[{v:"small",l:"< 50"},{v:"med",l:"50 – 200"},{v:"large",l:"> 200"}]},
+  {id:"obj",ph:2,q:"What is the modelling objective?",
+    opts:[{v:"design",l:"Code-based design / QC"},{v:"reliability",l:"Reliability / fragility"},{v:"seismic",l:"Seismic / collapse"},{v:"durability",l:"Durability / service-life"}]},
+  {id:"tail",ph:2,q:"Which tail region is critical for your analysis?",
+    opts:[{v:"none",l:"Neither tail critical"},{v:"lower",l:"Lower tail (failure)"},{v:"upper",l:"Upper tail (extremes)"},{v:"both",l:"Both tails"}]},
+];
+const PH=[{t:"Context",a:"#185FA5"},{t:"Variability",a:"#0F6E56"},{t:"Objective",a:"#854F0B"}];
+
+/* ══════════ RECOMMENDATION ══════════ */
+function recommend(s){
+  const lt=s.tail==="lower"||s.tail==="both",ut=s.tail==="upper"||s.tail==="both";
+  const rel=["reliability","seismic","durability"].includes(s.obj);
+  const lo=s.cov==="low",hi=s.cov==="high"||s.cov==="vhigh";
+  let dist,keys,reason,tags=[],alts=[],notes=[];
+  if(lt&&hi){
+    dist="Burr Type XII";keys=["burr"];
+    reason="Heavy-tailed distribution validated for in-structure concrete with high dispersion. Captures left-tail probability more accurately than Normal or Lognormal — critical when failure probability governs design (He et al., 2024).";
+    tags=[{t:"Lower-tail sensitive",c:"g"},{t:"Heavy-tail capable",c:"g"}];
+    if(ut){tags.push({t:"Upper tail via Gumbel/Fréchet",c:"b"});notes.push("For upper-tail extreme events, supplement Burr XII with a Gumbel or Fréchet extreme value model.")}
+    alts=[{n:"3P Weibull",d:"If weakest-link fracture mechanics is justified and a threshold strength γ exists."},{n:"Lognormal",d:"Only if GoF confirms and CoV can be reduced below ~20% by filtering."}];
+  }else if(lt&&!lo){
+    dist="2-parameter Weibull";keys=["weibull"];
+    reason="Grounded in weakest-link fracture theory for quasi-brittle materials. Superior lower-tail fit for core specimens and moderate-to-high variability (Chen et al., 2013; Vu et al., 2022).";
+    tags=[{t:"Fracture-consistent",c:"g"},{t:"Lower-tail sensitive",c:"g"}];
+    if(ut){tags.push({t:"Upper tail needs separate model",c:"a"});notes.push("Weibull is light-tailed on the right — for upper-tail extremes use Gumbel or Fréchet separately.")}
+    alts=[{n:"Burr XII",d:"If skewness exceeds what Weibull can capture."},{n:"3P Weibull",d:"If QC guarantees a minimum threshold strength."}];
+  }else if(ut&&!lt){
+    dist="Lognormal + Gumbel";keys=["lognormal","gumbel"];
+    reason=s.obj==="durability"
+      ?"Lognormal for bulk strength; Gumbel for extreme deterioration events — maximum pit depth, peak chloride penetration. Gumbel's unbounded right tail captures worst-case service-life scenarios (Li et al., 2023)."
+      :"Lognormal captures the bulk distribution; Gumbel models upper-tail extreme values — peak structural response, extreme load effects, maximum deterioration.";
+    tags=[{t:"Upper-tail via EVD",c:"g"},{t:"Dual-model",c:"b"}];
+    alts=[{n:"Fréchet",d:"Heavier right tail than Gumbel — for rare extremes with high consequence."}];
+  }else if(s.tail==="both"&&!hi){
+    dist="Weibull + Burr XII";keys=["weibull","burr"];
+    reason="Combined strategy: Weibull captures lower-tail fracture-driven behaviour; Burr XII provides flexible heavy-tail modelling at both extremes. Compare fits and select on GoF performance within each tail region.";
+    tags=[{t:"Both tails covered",c:"g"},{t:"Compare via GoF",c:"b"}];
+    alts=[{n:"Lognormal + Gumbel",d:"If the upper tail arises from environmental actions rather than material variability."}];
+  }else if(rel&&!lo){
+    dist="Lognormal";keys=["lognormal"];
+    reason="Enforces non-negativity and accommodates right-skewed behaviour seen in field and core data (Wiśniewski et al., 2012; Nguyen et al., 2022). Standard choice for reliability-based assessment.";
+    tags=[{t:"Non-negative",c:"g"},{t:"Right-skew capable",c:"g"}];
+    if(hi)tags.push({t:"Verify lower tail",c:"a"});
+    alts=[{n:"Weibull",d:"If GoF shows lognormal underestimates the lower tail."},{n:"Burr XII",d:"For CoV > 35% where the lognormal tail is insufficient."}];
+  }else if(lo&&s.tail==="none"){
+    dist="Normal (Gaussian)";keys=["normal"];
+    reason="For well-controlled data with CoV < 10% and near-symmetric histograms, Normal and Lognormal are statistically indistinguishable (Pacheco et al., 2019). Normal is simpler and FORM/SORM compatible.";
+    tags=[{t:"Simple",c:"b"},{t:"Code-compatible",c:"b"}];
+    if(s.src!=="lab")tags.push({t:"Verify symmetry",c:"a"});
+    alts=[{n:"Lognormal",d:"Preferred if any skewness is detected."}];
+    notes.push("Normal assigns nonzero probability to negative strengths — negligible at low CoV but check if tail values propagate.");
+  }else if(s.obj==="design"&&!hi){
+    dist="Normal (Gaussian)";keys=["normal"];
+    reason="Design codes (ACI 214R, IS 456, Eurocode, GB 50010) assume normality for characteristic strength and acceptance criteria. Appropriate for routine QC with controlled production.";
+    tags=[{t:"Code-aligned",c:"b"},{t:"Simple",c:"b"}];
+    alts=[{n:"Lognormal",d:"If the histogram shows positive skew."}];
+    notes.push("Verify normality with χ² or K–S tests when n > 50.");
+  }else if(s.obj==="durability"){
+    dist="Lognormal + Gumbel";keys=["lognormal","gumbel"];
+    reason="Lognormal for bulk variability; Gumbel for extreme deterioration events. Captures worst-case scenarios governing service-life failure.";
+    tags=[{t:"Dual-model",c:"b"},{t:"EVD capable",c:"g"}];
+    alts=[{n:"Fréchet",d:"For heavier right-tail phenomena."}];
+  }else{
+    dist="Lognormal";keys=["lognormal"];
+    reason="Default general-purpose choice. Physically motivated by multiplicative processes, non-negative, and validated across normal, high-strength, and recycled aggregate concretes.";
+    tags=[{t:"General purpose",c:"b"},{t:"Non-negative",c:"g"}];
+    alts=[{n:"Weibull",d:"If fracture mechanics governs failure."},{n:"Normal",d:"If CoV < 10% and symmetry is confirmed."}];
+  }
+  if(s.n==="small")notes.push("Sample size < 50: parameter estimates may be unstable and GoF tests have low power. Consider Bayesian updating or bootstrap confidence intervals.");
+  if(s.src==="mixed")notes.push("Mixed-source data: apply cluster analysis to identify homogeneous sub-populations before fitting (Croce et al., 2018).");
+  if((s.src==="core"||s.src==="mixed")&&!hi)notes.push("In-situ data typically shows higher variability than reported. Verify NDT smoothing has not artificially reduced CoV.");
+  if(s.mat==="alt")notes.push("Alternative concretes show non-standard dispersion. Validate with multiple GoF tests.");
+  if(s.mat==="recycled")notes.push("RAC variability peaks near 50% replacement ratio, then decreases at full replacement (Zhou et al., 2025).");
+  return{dist,keys,reason,tags,alts,notes};
+}
+
+/* ══════════ ILLUSTRATIVE CURVES ══════════ */
+const IL={
+  normal:{name:"Normal",color:"#185FA5",pdf:t=>(1/(4*Math.sqrt(2*Math.PI)))*Math.exp(-.5*((t-35)/4)**2),rng:[15,55]},
+  lognormal:{name:"Lognormal",color:"#0F6E56",pdf:t=>t<=0?0:(1/(t*.3*Math.sqrt(2*Math.PI)))*Math.exp(-.5*((Math.log(t)-3.5)/.3)**2),rng:[5,70]},
+  weibull:{name:"Weibull (2P)",color:"#534AB7",pdf:t=>t<=0?0:(6/36)*Math.pow(t/36,5)*Math.exp(-Math.pow(t/36,6)),rng:[.5,55]},
+  burr:{name:"Burr XII",color:"#B0407A",pdf:t=>t<=0?0:(4.5*2/32)*Math.pow(t/32,3.5)*Math.pow(1+Math.pow(t/32,4.5),-3),rng:[.5,70]},
+  gumbel:{name:"Gumbel",color:"#D85A30",pdf:t=>{const z=(t-38)/7;return(1/7)*Math.exp(-z-Math.exp(-z))},rng:[5,75]},
+};
+
+
+/* React UI — chart, data panel, and main application component.
+   Contains JSX; transpiled by Babel at runtime. */
+
+const {useState,useRef,useMemo,useEffect}=React;
+
+/* ══════════ CHART ══════════ */
+function Chart({curves,hist,tailMode,xRange,label}){
+  if(!curves||!curves.length)return null;
+  const W=520,H=200,pl=36,pr=14,pt=20,pb=32,cw=W-pl-pr,ch=H-pt-pb;
+  const[xMn,xMx]=xRange;
+  const yMx=Math.max(...curves.flatMap(c=>c.pts.map(p=>p.y)),...(hist?hist.map(b=>b.d):[0]))*1.14;
+  const sx=x=>pl+((x-xMn)/(xMx-xMn))*cw, sy=y=>pt+ch-(y/yMx)*ch;
+  const path=p=>p.map((q,i)=>`${i?"L":"M"}${sx(q.x).toFixed(1)},${sy(q.y).toFixed(1)}`).join("");
+  const area=p=>p.length<2?"":path(p)+`L${sx(p[p.length-1].x).toFixed(1)},${pt+ch}L${sx(p[0].x).toFixed(1)},${pt+ch}Z`;
+  const showL=tailMode==="lower"||tailMode==="both",showU=tailMode==="upper"||tailMode==="both";
+  const tails=curves.map(c=>{
+    const p=[...c.pts].sort((a,b)=>a.x-b.x);
+    let tot=0;for(let i=1;i<p.length;i++)tot+=(p[i].x-p[i-1].x)*(p[i].y+p[i-1].y)/2;
+    let cum=0,lX=null,uX=null;
+    for(let i=1;i<p.length;i++){
+      cum+=(p[i].x-p[i-1].x)*(p[i].y+p[i-1].y)/2;
+      if(lX===null&&cum/tot>=.10)lX=p[i].x;
+      if(uX===null&&cum/tot>=.90)uX=p[i].x;
+    }
+    lX=lX??p[0].x;uX=uX??p[p.length-1].x;
+    return{lX,uX,lPts:p.filter(q=>q.x<=lX),uPts:p.filter(q=>q.x>=uX)};
+  });
+  return(
+    <div className="chart">
+      <div className="chdr">
+        <span className="ctitle">{label}</span>
+        <div className="leg">{curves.map((c,i)=><span key={i} className="li" style={{color:c.color}}><span className="ll" style={{background:c.color}}/>{c.name}</span>)}</div>
+      </div>
+      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+        {[0,1,2,3].map(i=><line key={i} x1={pl} y1={pt+(i/3)*ch} x2={W-pr} y2={pt+(i/3)*ch} stroke="var(--bd)" strokeWidth=".5"/>)}
+        {hist&&hist.map((b,i)=>{const x0=sx(b.lo),x1=sx(b.hi);
+          return <rect key={i} x={x0} y={sy(b.d)} width={Math.max(.5,x1-x0-.7)} height={pt+ch-sy(b.d)} fill="var(--t3)" fillOpacity=".22"/>})}
+        {curves.map((c,ci)=><g key={`t${ci}`}>
+          {showL&&tails[ci].lPts.length>2&&<path d={area(tails[ci].lPts)} fill={c.color} fillOpacity=".2"/>}
+          {showU&&tails[ci].uPts.length>2&&<path d={area(tails[ci].uPts)} fill={c.color} fillOpacity=".2"/>}
+        </g>)}
+        {curves.map((c,ci)=><path key={ci} d={path(c.pts)} fill="none" stroke={c.color} strokeWidth="1.9" strokeLinejoin="round"/>)}
+        {curves.map((c,ci)=><g key={`d${ci}`}>
+          {showL&&<line x1={sx(tails[ci].lX)} y1={pt} x2={sx(tails[ci].lX)} y2={pt+ch} stroke={c.color} strokeWidth=".8" strokeDasharray="3 3" opacity=".55"/>}
+          {showU&&<line x1={sx(tails[ci].uX)} y1={pt} x2={sx(tails[ci].uX)} y2={pt+ch} stroke={c.color} strokeWidth=".8" strokeDasharray="3 3" opacity=".55"/>}
+        </g>)}
+        {showL&&<text x={sx(tails[0].lX)-3} y={pt+9} textAnchor="end" fontSize="8" fill={curves[0].color} fontWeight="600" opacity=".8">Lower tail (Pf)</text>}
+        {showU&&<text x={sx(tails[curves.length-1].uX)+3} y={pt+9} textAnchor="start" fontSize="8" fill={curves[curves.length-1].color} fontWeight="600" opacity=".8">Upper tail</text>}
+        <line x1={pl} y1={pt+ch} x2={W-pr} y2={pt+ch} stroke="var(--bd2)" strokeWidth=".5"/>
+        {Array.from({length:7},(_,i)=>{const v=xMn+(i/6)*(xMx-xMn);
+          return <text key={i} x={pl+(i/6)*cw} y={H-11} textAnchor="middle" fontSize="9" fill="var(--t3)">{v>=100?Math.round(v):v.toFixed(v<20?1:0)}</text>})}
+        <text x={W/2} y={H-1} textAnchor="middle" fontSize="9" fill="var(--t3)">Compressive strength (MPa)</text>
+        <text x={9} y={pt+ch/2} textAnchor="middle" fontSize="9" fill="var(--t3)" transform={`rotate(-90,9,${pt+ch/2})`}>f(x)</text>
+      </svg>
+    </div>
+  );
+}
+
+const TC={g:{bg:"var(--ok-bg)",c:"var(--ok-c)"},b:{bg:"var(--info-bg)",c:"var(--info-c)"},a:{bg:"var(--warn-bg)",c:"var(--warn-c)"}};
+const TAIL_TXT={
+  lower:"The shaded lower-tail region governs failure probability Pf. Underestimating it produces unconservative reliability predictions. Weibull and Burr XII capture this region more accurately than Normal or Lognormal.",
+  upper:"The shaded upper-tail region captures extreme events — peak loading, maximum deterioration, or rare high-strength realizations. Gumbel and Fréchet extreme value distributions are designed for this behaviour.",
+  both:"Both tails are critical. The lower tail governs structural failure probability; the upper tail governs extreme event likelihood. A dual-model or flexible heavy-tailed distribution avoids bias in either direction.",
+  none:"Neither tail dominates — central tendency and overall dispersion are the primary concerns. Standard distributions are adequate.",
+};
+const Sec=({label,right,children})=><div className="sec"><div className="sec-l"><span>{label}</span>{right}</div>{children}</div>;
+
+/* ══════════ DATA PANEL ══════════ */
+function DataPanel({data,setData,err,setErr}){
+  const[over,setOver]=useState(false);
+  const inp=useRef(null);
+  const parse=(wb,sheetName,colIdx,outlier)=>{
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,blankrows:false});
+    if(!rows.length)throw new Error("Sheet is empty.");
+    const hdr=rows[0]||[],nc=Math.max(...rows.map(r=>r.length));
+    const num=v=>{
+      if(typeof v==="number"&&isFinite(v))return v;
+      if(typeof v==="string"){const t=parseFloat(v.replace(/,/g,"").trim());return isFinite(t)?t:null}
+      return null;
+    };
+    const hdrText=hdr.some(c=>typeof c==="string"&&num(c)===null);
+    const body=hdrText?rows.slice(1):rows,cols=[];
+    for(let c=0;c<nc;c++){
+      const vals=body.map(r=>num(r[c])).filter(v=>v!==null&&v>0);
+      if(vals.length>=5)cols.push({idx:c,name:(hdrText&&hdr[c]!=null&&String(hdr[c]).trim())||`Column ${String.fromCharCode(65+c)}`,count:vals.length,vals});
+    }
+    if(!cols.length)throw new Error("No numeric column with at least 5 positive values found.");
+    const ch=cols.find(c=>c.idx===colIdx)||cols[0];
+    let v=ch.vals;
+    if(outlier==="sd3"){const m=S(v)/v.length,s=Math.sqrt(S(v.map(t=>(t-m)**2))/(v.length-1));v=v.filter(t=>Math.abs(t-m)<=3*s)}
+    else if(outlier==="iqr"){const st=[...v].sort((a,b)=>a-b),q=p=>st[Math.floor(p*(st.length-1))],q1=q(.25),q3=q(.75),ir=q3-q1;v=v.filter(t=>t>=q1-1.5*ir&&t<=q3+1.5*ir)}
+    if(v.length<5)throw new Error("Fewer than 5 valid values remain after filtering.");
+    return{wb,sheets:wb.SheetNames,sheet:sheetName,cols,col:ch.idx,colName:ch.name,values:v,removed:ch.vals.length-v.length,outlier,stats:describe(v)};
+  };
+  const load=file=>{
+    setErr("");
+    const rd=new FileReader();
+    rd.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:"array"});setData(parse(wb,wb.SheetNames[0],-1,"none"))}
+      catch(ex){setErr(ex.message||"Could not read this file.");setData(null)}};
+    rd.onerror=()=>setErr("File could not be read.");
+    rd.readAsArrayBuffer(file);
+  };
+  const change=(k,val)=>{try{setErr("");
+    setData(parse(data.wb,k==="sheet"?val:data.sheet,k==="col"?val:(k==="sheet"?-1:data.col),k==="out"?val:data.outlier))}
+    catch(ex){setErr(ex.message)}};
+  const template=()=>{
+    const b=new Blob(["fc_MPa\n32.4\n29.8\n35.1\n31.0\n33.7\n28.6\n34.2\n30.9\n"],{type:"text/csv"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="strength_data_template.csv";a.click();
+  };
+  if(!data)return(
+    <div>
+      {err&&<div className="err">{err}</div>}
+      <div className={`drop${over?" over":""}`} onClick={()=>inp.current.click()}
+        onDragOver={e=>{e.preventDefault();setOver(true)}} onDragLeave={()=>setOver(false)}
+        onDrop={e=>{e.preventDefault();setOver(false);if(e.dataTransfer.files[0])load(e.dataTransfer.files[0])}}>
+        <div className="drop-t">Upload strength data</div>
+        <div className="drop-s">Excel (.xlsx, .xls) or CSV — tap or drag a file here</div>
+      </div>
+      <input ref={inp} type="file" accept=".xlsx,.xls,.csv" style={{display:"none"}} onChange={e=>e.target.files[0]&&load(e.target.files[0])}/>
+      <div style={{marginTop:8,textAlign:"center"}}><button className="lnk" onClick={template}>Download CSV template</button></div>
+    </div>
+  );
+  const st=data.stats;
+  return(
+    <div>
+      {err&&<div className="err">{err}</div>}
+      <div className="sel-row">
+        {data.sheets.length>1&&<div><label>Sheet</label>
+          <select value={data.sheet} onChange={e=>change("sheet",e.target.value)}>{data.sheets.map(s=><option key={s} value={s}>{s}</option>)}</select></div>}
+        <div><label>Column</label>
+          <select value={data.col} onChange={e=>change("col",+e.target.value)}>{data.cols.map(c=><option key={c.idx} value={c.idx}>{c.name} ({c.count})</option>)}</select></div>
+        <div><label>Outliers</label>
+          <select value={data.outlier} onChange={e=>change("out",e.target.value)}>
+            <option value="none">Keep all</option><option value="sd3">Remove &gt;3σ</option><option value="iqr">Remove IQR 1.5×</option>
+          </select></div>
+      </div>
+      <div className="stats">
+        <div className="stat"><div className="stat-v">{st.n}</div><div className="stat-l">n</div></div>
+        <div className="stat"><div className="stat-v">{st.mean.toFixed(2)}</div><div className="stat-l">Mean</div></div>
+        <div className="stat"><div className="stat-v">{st.sd.toFixed(2)}</div><div className="stat-l">SD</div></div>
+        <div className="stat"><div className="stat-v" style={{color:"#0F6E56"}}>{st.cov.toFixed(2)}%</div><div className="stat-l">CoV</div></div>
+        <div className="stat"><div className="stat-v">{st.skew.toFixed(2)}</div><div className="stat-l">Skew</div></div>
+        <div className="stat"><div className="stat-v">{st.min.toFixed(1)}–{st.max.toFixed(1)}</div><div className="stat-l">Range</div></div>
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+        <span style={{fontSize:10.5,color:"var(--t3)"}}>
+          {data.colName}{data.removed>0?` · ${data.removed} excluded`:""} · CoV → {covLabel(covBucket(st.cov))} · n → {nLabel(nBucket(st.n))}
+        </span>
+        <button className="lnk" onClick={()=>{setData(null);setErr("")}}>Remove file</button>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════ APP ══════════ */
+function App(){
+  const[ans,setAns]=useState({});
+  const[mode,setMode]=useState("upload");
+  const[data,setData]=useState(null);
+  const[err,setErr]=useState("");
+  const[B,setB]=useState(500);
+  const[boot,setBoot]=useState(null);
+  const[booting,setBooting]=useState(false);
+  const refs=useRef({}),resRef=useRef(null);
+
+  const eff=useMemo(()=>{
+    const o={...ans};
+    if(mode==="upload"&&data){o.cov=covBucket(data.stats.cov);o.n=nBucket(data.stats.n)}
+    return o;
+  },[ans,mode,data]);
+
+  const filled=QS.filter(q=>eff[q.id]).length,done=filled===6;
+  const rec=done?recommend(eff):null;
+
+  const fits=useMemo(()=>{
+    if(!data)return null;
+    try{
+      const v=data.values;
+      return Object.keys(FITTERS).map(k=>{const f=FITTERS[k](v);return{...f,g:gof(v,f)}}).sort((a,b)=>a.g.ad-b.g.ad);
+    }catch(e){return null}
+  },[data]);
+
+  // Bootstrap, chunked one distribution per tick so the UI stays responsive
+  useEffect(()=>{
+    if(!fits||!data){setBoot(null);return}
+    let cancelled=false;
+    setBoot(null);setBooting(true);
+    const acc={},queue=fits.map(f=>f.key);
+    const step=()=>{
+      if(cancelled)return;
+      const k=queue.shift();
+      if(k===undefined){setBooting(false);return}
+      const f=fits.find(x=>x.key===k);
+      acc[k]=bootstrapP(data.values,k,f.g.ad,f.g.ks,B);
+      if(cancelled)return;
+      setBoot({...acc});
+      setTimeout(step,0);
+    };
+    const id=setTimeout(step,60);
+    return()=>{cancelled=true;clearTimeout(id)};
+  },[fits,data,B]);
+
+  const pick=(id,v)=>{
+    const next={...ans,[id]:v};setAns(next);
+    const merged={...next};
+    if(mode==="upload"&&data){merged.cov=covBucket(data.stats.cov);merged.n=nBucket(data.stats.n)}
+    setTimeout(()=>{
+      const nx=QS.find(q=>!merged[q.id]);
+      if(nx&&refs.current[nx.id])refs.current[nx.id].scrollIntoView({behavior:"smooth",block:"center"});
+      else if(resRef.current)setTimeout(()=>resRef.current.scrollIntoView({behavior:"smooth",block:"start"}),120);
+    },80);
+  };
+  const reset=()=>{setAns({});setData(null);setErr("");setBoot(null);window.scrollTo({top:0,behavior:"smooth"})};
+
+  const chart=useMemo(()=>{
+    if(!rec)return null;
+    const N=250;
+    if(data&&fits){
+      const v=data.values;
+      const sel=rec.keys.map(k=>fits.find(f=>f.key===k)).filter(Boolean);
+      const use=sel.length?sel:[fits[0]];
+      const lo=Math.max(.01,Math.min(...v)*.75),hi=Math.max(...v)*1.25;
+      const curves=use.map(f=>({name:f.name,color:f.color,pts:Array.from({length:N+1},(_,i)=>{const x=lo+(i/N)*(hi-lo);return{x,y:f.pdf(x)}})}));
+      const nb=Math.min(24,Math.max(7,Math.ceil(Math.sqrt(v.length))));
+      const mn=Math.min(...v),bw=(Math.max(...v)-mn)/nb;
+      const hist=Array.from({length:nb},(_,i)=>{const l=mn+i*bw,h=l+bw;
+        return{lo:l,hi:h,d:v.filter(t=>i===nb-1?t>=l&&t<=h:t>=l&&t<h).length/(v.length*bw)}});
+      return{curves,hist,xRange:[lo,hi],label:"Empirical histogram + fitted PDF"};
+    }
+    const use=rec.keys.map(k=>IL[k]).filter(Boolean);
+    const lo=Math.min(...use.map(u=>u.rng[0])),hi=Math.max(...use.map(u=>u.rng[1]));
+    return{curves:use.map(u=>({name:u.name,color:u.color,pts:Array.from({length:N+1},(_,i)=>{const x=lo+(i/N)*(hi-lo);return{x,y:u.pdf(x)}})})),
+      hist:null,xRange:[lo,hi],label:"Illustrative PDF shape + tail regions"};
+  },[rec,data,fits]);
+
+  // Admissibility & reconciliation
+  const analysis=useMemo(()=>{
+    if(!fits||!rec||!boot)return null;
+    const rows=fits.map(f=>({...f,b:boot[f.key]||{}}));
+    const complete=rows.every(r=>r.b.pAD!==undefined);
+    if(!complete)return null;
+    const adm=rows.filter(r=>r.b.pAD!==null&&r.b.pAD>0.05);
+    const recFits=rec.keys.map(k=>rows.find(r=>r.key===k)).filter(Boolean);
+    const recAdmissible=recFits.length>0&&recFits.every(r=>r.b.pAD!==null&&r.b.pAD>0.05);
+    const best=rows[0];
+    const agree=rec.keys.includes(best.key);
+    return{rows,adm,recFits,recAdmissible,best,agree};
+  },[fits,rec,boot]);
+
+  const fractiles=useMemo(()=>{
+    if(!fits)return null;
+    return fits.map(f=>({key:f.key,name:f.name,f5:f.q(.05),f1:f.q(.01),f95:f.q(.95)}));
+  },[fits]);
+
+  return(
+    <div className="app">
+      <div className="hdr">
+        <h1>Probability distribution selection framework</h1>
+        <div className="sub">Concrete compressive strength — uncertainty-aware modelling guidance</div>
+      </div>
+
+      <div className="prog">{QS.map(q=><div key={q.id} className="pseg" style={eff[q.id]?{background:PH[q.ph].a}:{}}/>)}</div>
+
+      {[0,1,2].map(gi=>(
+        <div key={gi} className="phase">
+          <div className="plab"><div className="pnum" style={{background:PH[gi].a}}>{gi+1}</div><span className="ptitle">{PH[gi].t}</span></div>
+          {QS.filter(q=>q.ph===gi).map(q=>{
+            const auto=mode==="upload"&&data&&(q.id==="cov"||q.id==="n"),on=!!eff[q.id];
+            return(
+              <div key={q.id} ref={el=>refs.current[q.id]=el} className="card" style={on?{boxShadow:`0 0 0 1.5px ${PH[q.ph].a}30`,borderColor:"transparent"}:{}}>
+                <div className="q"><span>{q.q}</span>{auto&&<span className="badge">from data</span>}</div>
+                {q.special?(
+                  <div>
+                    <div className="tabs">
+                      <button className={`tab${mode==="upload"?" on":""}`} onClick={()=>setMode("upload")}>Upload raw data</button>
+                      <button className={`tab${mode==="manual"?" on":""}`} onClick={()=>setMode("manual")}>I know the CoV</button>
+                    </div>
+                    {mode==="upload"?<DataPanel data={data} setData={setData} err={err} setErr={setErr}/>
+                      :<div className="opts">{q.opts.map(o=>(
+                        <button key={o.v} className="opt" onClick={()=>pick(q.id,o.v)}
+                          style={ans[q.id]===o.v?{borderColor:PH[q.ph].a,background:PH[q.ph].a+"18",color:PH[q.ph].a,fontWeight:500}:{}}>{o.l}</button>))}
+                      </div>}
+                  </div>
+                ):(
+                  <div className="opts">{q.opts.map(o=>{const sel=eff[q.id]===o.v;
+                    return <button key={o.v} className="opt" disabled={auto} onClick={()=>pick(q.id,o.v)}
+                      style={sel?{borderColor:PH[q.ph].a,background:PH[q.ph].a+"18",color:PH[q.ph].a,fontWeight:500,opacity:1}:{}}>{o.l}</button>})}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      <div ref={resRef}>
+        <div className="plab"><div className="pnum" style={{background:"#534AB7"}}>4</div><span className="ptitle">Recommendation</span></div>
+        {!done?(
+          <div className="res-ph">
+            {mode==="upload"&&!data?"Upload a data file, then complete the remaining selections":"Complete all selections above"}
+            <div style={{marginTop:7,fontSize:19,opacity:.25}}>{filled}/6</div>
+          </div>
+        ):(
+          <div className="res">
+            {fits?(
+              <div className="split">
+                <div className="sp">
+                  <div className="sp-l">Context recommends</div>
+                  <div className="sp-v">{rec.dist}</div>
+                  <div className="sp-s">from your six selections</div>
+                </div>
+                <div className="sp">
+                  <div className="sp-l">Best fit on your data</div>
+                  <div className="sp-v">{fits[0].name}</div>
+                  <div className="sp-s">lowest A–D statistic</div>
+                </div>
+              </div>
+            ):(<>
+              <div className="rlab">Framework recommendation</div>
+              <div className="rdist">{rec.dist}</div>
+            </>)}
+
+            {analysis&&(
+              <div className={`verdict ${analysis.agree?"v-ok":analysis.recAdmissible?"v-info":"v-warn"}`}>
+                {analysis.agree?<>
+                  <b>Context and data agree.</b> {rec.dist} both fits your sample best and matches your modelling context. {analysis.adm.length>1&&`Note that ${analysis.adm.length} of ${analysis.rows.length} candidates are statistically admissible (p > 0.05), so the ranking margin is modest.`}
+                </>:analysis.recAdmissible?<>
+                  <b>Keep {rec.dist}.</b> It is statistically admissible on your data (bootstrap p<sub>AD</sub> = {analysis.recFits.map(r=>r.b.pAD.toFixed(3)).join(", ")}), meaning your sample provides no evidence against it. {analysis.best.name} ranks first, but {analysis.adm.length} of {analysis.rows.length} candidates pass the test — at n = {data.stats.n} the ranking separates models that are statistically indistinguishable. Rank order is not a selection criterion; choose on tail behaviour and physical mechanism.
+                </>:<>
+                  <b>Reconsider {rec.dist}.</b> Your data rejects it (bootstrap p<sub>AD</sub> = {analysis.recFits.map(r=>r.b.pAD===null?"n/a":r.b.pAD.toFixed(3)).join(", ")} ≤ 0.05). Among admissible candidates, {analysis.adm.length?analysis.adm[0].name:"none"} gives the best fit. Here the empirical evidence should override the contextual default — report both and justify the departure.
+                </>}
+              </div>
+            )}
+
+            <div className="rreason">{rec.reason}</div>
+            <div className="tags">{rec.tags.map((t,i)=><span key={i} className="tag" style={{background:TC[t.c].bg,color:TC[t.c].c}}>{t.t}</span>)}</div>
+
+            <Chart curves={chart.curves} hist={chart.hist} tailMode={eff.tail} xRange={chart.xRange} label={chart.label}/>
+
+            {fits&&(
+              <Sec label="Goodness of fit on your data"
+                right={<select value={B} onChange={e=>setB(+e.target.value)} style={{fontSize:10,padding:"2px 5px",maxWidth:110}}>
+                  <option value={200}>B = 200</option><option value={500}>B = 500</option><option value={1000}>B = 1000</option><option value={2000}>B = 2000</option>
+                </select>}>
+                <table>
+                  <thead><tr><th>Distribution</th><th>A–D</th><th>p<sub>AD</sub></th><th>K–S</th><th>p<sub>KS</sub></th><th>AIC</th><th>BIC</th></tr></thead>
+                  <tbody>
+                    {fits.map(f=>{
+                      const b=boot?boot[f.key]:null;
+                      const rej=b&&b.pAD!==null&&b.pAD<=.05;
+                      const isRec=rec.keys.includes(f.key);
+                      return(
+                        <tr key={f.key} className={`${rej?"rej":""} ${isRec?"recd":""}`}>
+                          <td><span className="dot" style={{background:b?(rej?"var(--err-c)":"var(--ok-c)"):"var(--bd2)"}}/>{f.name}</td>
+                          <td>{f.g.ad.toFixed(3)}</td>
+                          <td>{b?(b.pAD===null?"—":b.pAD.toFixed(3)):<span className="spin"/>}</td>
+                          <td>{f.g.ks.toFixed(4)}</td>
+                          <td>{b?(b.pKS===null?"—":b.pKS.toFixed(3)):""}</td>
+                          <td>{f.g.aic.toFixed(1)}</td>
+                          <td>{f.g.bic.toFixed(1)}</td>
+                        </tr>);
+                    })}
+                  </tbody>
+                </table>
+                <div style={{fontSize:10,color:"var(--t3)",marginTop:7,lineHeight:1.55}}>
+                  {booting&&<><span className="spin"/>Running parametric bootstrap… </>}
+                  p-values are parametric-bootstrap calibrated with parameter re-estimation on each resample. Green = admissible (p &gt; 0.05); red = rejected. Bold marks the framework recommendation. Sorted by A–D, but <b>rank order alone is not a selection criterion</b> — see the design-value spread below.
+                </div>
+              </Sec>
+            )}
+
+            {fractiles&&(
+              <Sec label="Design-value consequence of the choice">
+                <table>
+                  <thead><tr><th>Distribution</th><th>f<sub>5%</sub></th><th>f<sub>1%</sub></th><th>f<sub>95%</sub></th></tr></thead>
+                  <tbody>
+                    {fractiles.map(f=>(
+                      <tr key={f.key} className={rec.keys.includes(f.key)?"recd":""}>
+                        <td>{f.name}</td><td>{f.f5.toFixed(2)}</td><td>{f.f1.toFixed(2)}</td><td>{f.f95.toFixed(2)}</td>
+                      </tr>))}
+                    <tr><td style={{color:"var(--t3)",fontWeight:400}}>Empirical (order stat.)</td>
+                      <td style={{color:"var(--t3)"}}>{data.stats.emp5.toFixed(2)}</td><td style={{color:"var(--t3)"}}>—</td><td style={{color:"var(--t3)"}}>—</td></tr>
+                  </tbody>
+                </table>
+                <div style={{fontSize:10,color:"var(--t3)",marginTop:7,lineHeight:1.55}}>
+                  Fractiles in MPa. The 1% fractile spans {(Math.min(...fractiles.map(f=>f.f1))).toFixed(1)}–{(Math.max(...fractiles.map(f=>f.f1))).toFixed(1)} MPa
+                  ({(100*(Math.max(...fractiles.map(f=>f.f1))-Math.min(...fractiles.map(f=>f.f1)))/Math.min(...fractiles.map(f=>f.f1))).toFixed(0)}% spread) across candidates that the GoF test cannot separate. This divergence — not the A–D ranking — is what the distribution choice actually controls, and it is why the contextual recommendation carries weight.
+                </div>
+              </Sec>
+            )}
+
+            {fits&&(
+              <Sec label={`Fitted parameters (MLE, n = ${data.stats.n})`}>
+                <div className="mono">{rec.keys.map(k=>{const f=fits.find(x=>x.key===k);
+                  return f?`${f.name}:  ${Object.keys(f.p).map(a=>`${f.lab[a]} = ${f.p[a].toFixed(5)}`).join(",  ")}\n${f.eq}`:""}).filter(Boolean).join("\n\n")}</div>
+                <div style={{fontSize:10,color:"var(--t3)",marginTop:6}}>Equations use <code>x</code> as the strength variable — substitute <code>col(B)</code> for OriginPro.</div>
+              </Sec>
+            )}
+
+            <Sec label="Tail behavior"><div className="sec-b">{TAIL_TXT[eff.tail]}</div></Sec>
+
+            {!fits&&(
+              <Sec label="PDF formulation">
+                <div className="mono">{rec.keys.map(k=>({
+                  normal:"Normal:     f(x) = 1/(σ√(2π)) · exp[−(x−μ)²/(2σ²)]",
+                  lognormal:"Lognormal:  f(x) = 1/(xσ_Y√(2π)) · exp[−(ln x−μ_Y)²/(2σ_Y²)]",
+                  weibull:"Weibull:    f(x) = (m/λ)(x/λ)^(m−1) · exp[−(x/λ)^m]",
+                  burr:"Burr XII:   f(x) = (ak/c)(x/c)^(a−1) · [1+(x/c)^a]^(−(k+1))",
+                  gumbel:"Gumbel:     f(x) = (1/s)·exp[−z−exp(−z)],  z=(x−m)/s",
+                }[k])).join("\n")}</div>
+              </Sec>
+            )}
+
+            {rec.alts.length>0&&<Sec label="Alternatives to consider">{rec.alts.map((a,i)=><div key={i} className="alt"><b>{a.n}</b> — {a.d}</div>)}</Sec>}
+
+            <Sec label="Required validation">
+              {[fits?"Report bootstrap p-values alongside the raw statistics — asymptotic critical values are invalid with estimated parameters":"Apply ≥ 2 GoF tests (K–S + Anderson–Darling) with bootstrap calibration",
+                "Treat all admissible candidates as a set; do not select on rank margin alone",
+                "Compare fractiles at the exceedance level your limit state actually uses",
+                "Verify consistency with the physical failure mechanism"].map((s,i)=>(
+                <div key={i} className="vs"><span className="vn">{i+1}.</span><span style={{color:"var(--t2)"}}>{s}</span></div>))}
+            </Sec>
+
+            {rec.notes.length>0&&<div style={{marginTop:10}}>{rec.notes.map((n,i)=><div key={i} className="note">{n}</div>)}</div>}
+            <button className="btn" style={{marginTop:13}} onClick={reset}>Reset</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
